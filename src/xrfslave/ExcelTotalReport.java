@@ -8,9 +8,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,32 +49,51 @@ public class ExcelTotalReport {
             boolean fim_item = false;
             String judge_item = "O.K.";
             String data_teste_item = "";
-            String nome_item = "";
+            //String nome_item = "";
+            String nome_Item = "";
+            
+            String sample_no = "";
+            String data_teste = "";
+            String nome = "";
+            String part_number = "";
+            String operator = "";
+            String judge = "";
+            String cd_judge = "";
+            String pb_judge = "";
+            String hg_judge = "";
+            String br_judge = "";
+            String cr_judge = "";
+            
+            ArrayList<SubItem> lista = new ArrayList<SubItem>();
+            
+            int index = 0;
             while (rowIterator.hasNext()) {
                 i +=1;
                 Row row = rowIterator.next();
                 if(i > 3){
                       Iterator<Cell> cellIterator = row.cellIterator();
-                      String data_teste = "";
-                      String nome = "";
-                      String item = "";
-                      String operator = "";
-                      String judge = "";
-                      String cd_judge = "";
-                      String pb_judge = "";
-                      String hg_judge = "";
-                      String br_judge = "";
-                      String cr_judge = "";
+                      
                       while (cellIterator.hasNext()) {
                         Cell cell = cellIterator.next();
                         switch (cell.getColumnIndex()) {
                           case 0:
                              cell.setCellType(CellType.STRING);
-                             System.out.print(cell.getStringCellValue());
+                             System.out.print(cell.getStringCellValue() );
                              if(cell.getStringCellValue().length() > 10){
                                 fim_item = true;
+                                while(cell.getStringCellValue().indexOf("\\",index) != -1){
+                                    index = cell.getStringCellValue().indexOf("\\",index) + 1;
+                                }
+                                
+                                nome_Item = cell.getStringCellValue().substring(index,cell.getStringCellValue().indexOf(".",index));
+                                
                              }
                              break;
+                          case 1:
+                              cell.setCellType(CellType.STRING);
+                              System.out.print(" " + cell.getStringCellValue());
+                              sample_no = cell.getStringCellValue();
+                              break;
                           case 7:
                              String cellValue = "";
                              if(DateUtil.isCellDateFormatted(cell)){
@@ -90,8 +112,8 @@ public class ExcelTotalReport {
                           case 10:
                               cell.setCellType(CellType.STRING);
                               System.out.print(" " + cell.getStringCellValue());
-                              item = cell.getStringCellValue();
-                              nome_item = item;
+                              part_number = cell.getStringCellValue();
+                              //nome_item = item;
                               break;
                           case 11:
                               cell.setCellType(CellType.STRING);
@@ -105,8 +127,6 @@ public class ExcelTotalReport {
                               if(judge_item.equals("O.K.")){
                                 judge_item = judge;
                               }
-                              
-                              
                               break;
                           case 20:
                               cell.setCellType(CellType.STRING);
@@ -135,46 +155,91 @@ public class ExcelTotalReport {
                               break;
                         }
                     }
-                      
-                    try{
-                        // create the java mysql update preparedstatement
-                        String query = "update subitem set operator = ?,judge = ?, cd_judge = ?, pb_judge = ?, hg_judge = ?,"
-                                + "br_judge = ?,cr_judge = ? where item = (select id from item where data_teste = ? and nome = ?) and nome = ?";
-                        PreparedStatement preparedStmt = conn.prepareStatement(query);
-                        preparedStmt.setString(1, operator);
-                        preparedStmt.setString(2, judge);
-                        preparedStmt.setString(3, cd_judge);
-                        preparedStmt.setString(4, pb_judge);
-                        preparedStmt.setString(5, hg_judge);
-                        preparedStmt.setString(6, br_judge);
-                        preparedStmt.setString(7, cr_judge);
-                        preparedStmt.setString(8, data_teste);
-                        preparedStmt.setString(9, item);
-                        preparedStmt.setString(10, nome);
-
-                        // execute the java preparedstatement
-                        preparedStmt.executeUpdate();
-                    }catch(SQLException e){
-                        System.err.println(e.getMessage());
+                    if(!fim_item){
+                        SubItem sb = new SubItem(sample_no,data_teste, nome, part_number, operator, judge, cd_judge, pb_judge, hg_judge, br_judge, cr_judge);
+                        lista.add(sb);
                     }
+                    
                 }    
                 if(fim_item){
                     fim_item = false;
-                    i = 0;
-                    try{
-                        // create the java mysql update preparedstatement
-                        String query = "update item set judge = ?, situacao = 'REALIZADO' where data_teste = ? and nome = ?";
-                        PreparedStatement preparedStmt = conn.prepareStatement(query);
-                        preparedStmt.setString(1, judge_item);
-                        preparedStmt.setString(2, data_teste_item);
-                        preparedStmt.setString(3, nome_item);
+                    //i = 0;
+                    index = 0;
+                    //System.out.println("Fim Item : " + nome_Item);
+                    //System.out.println("Tamanho: " + lista.size());
+                    String consultaItem = "select * from item where nome = '"+ nome_Item +"' and data_teste = '" + data_teste_item + "'";
+                    Statement st;
+                    try {
+                        st = conn.createStatement();
+                        ResultSet rs = st.executeQuery(consultaItem);
+                        if(rs.next() && rs.getString("situacao").equals("NÃO_REALIZADO")){
+                            for (SubItem sb : lista) {
+                                try{
+                                    // create the java mysql update preparedstatement
+                                    String query = "insert into subitem(sample_no,operator,judge,cd_judge,pb_judge,hg_judge,br_judge,cr_judge,item,nome,data_teste) "
+                                            + "values(?,?,?,?,?,?,?,?,(select id from item where data_teste = ? and nome = ?),?,?) ";
 
-                        // execute the java preparedstatement
-                        preparedStmt.executeUpdate();
-                    }catch(SQLException e){
-                        System.err.println(e.getMessage());
+                                    PreparedStatement preparedStmt = conn.prepareStatement(query);
+                                    preparedStmt.setString(1, sb.sample_no);
+                                    preparedStmt.setString(2, sb.operator);
+                                    preparedStmt.setString(3, sb.judge);
+                                    preparedStmt.setString(4, sb.cd_judge);
+                                    preparedStmt.setString(5, sb.pb_judge);
+                                    preparedStmt.setString(6, sb.hg_judge);
+                                    preparedStmt.setString(7, sb.br_judge);
+                                    preparedStmt.setString(8, sb.cr_judge);
+                                    preparedStmt.setString(9, sb.data_teste);
+                                    preparedStmt.setString(10, nome_Item);
+                                    preparedStmt.setString(11, sb.nome);
+                                    preparedStmt.setString(12, sb.data_teste);
+
+                                    // execute the java preparedstatement
+                                    preparedStmt.execute();
+                                }catch(SQLException e){
+                                    System.out.println(e.getMessage());
+                                }
+                                String path_source = path.substring(0,path.indexOf("TotalReport.xls")) + nome_Item + "\\Report\\" + sb.sample_no + ".xls";
+                                File source = new File(path_source); 
+                                File dest = new File("C:\\xampp\\htdocs\\ReportsFiles\\" + sb.data_teste + "_" + sb.sample_no +"_"+ sb.nome +"_" + nome_Item +".xls");
+                                copiarReport(source, dest);
+                            }
+
+                            try{
+                                // create the java mysql update preparedstatement
+                                String query = "update item set judge = ?, situacao = 'REALIZADO', part_number = ? where data_teste = ? and nome = ?";
+                                PreparedStatement preparedStmt = conn.prepareStatement(query);
+                                preparedStmt.setString(1, judge_item);
+                                preparedStmt.setString(2, part_number);
+                                preparedStmt.setString(3, data_teste_item);
+                                preparedStmt.setString(4, nome_Item);
+
+                                // execute the java preparedstatement
+                                preparedStmt.executeUpdate();
+                            }catch(SQLException e){
+                                System.err.println(e.getMessage());
+                            }
+                            
+                            
+                        }
+                    } catch (SQLException ex) {
+                        Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     judge_item = "O.K.";
+                    nome_Item = "";
+                    
+                    sample_no = "";
+                    data_teste = "";
+                    nome = "";
+                    part_number = "";
+                    operator = "";
+                    judge = "";
+                    cd_judge = "";
+                    pb_judge = "";
+                    hg_judge = "";
+                    br_judge = "";
+                    cr_judge = "";
+                    
+                    lista = new ArrayList<SubItem>();
                 }
                 arquivo.close();
             }
@@ -182,5 +247,16 @@ public class ExcelTotalReport {
         Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
     }     
    }
+   
+   private static void copiarReport(File source, File dest){
+
+        try {
+            Files.copy(source.toPath(), dest.toPath());
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
+
     
 }
