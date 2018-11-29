@@ -18,11 +18,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import jxl.Cell;
-import jxl.NumberCell;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
 import javax.swing.JOptionPane;
 
 /**
@@ -34,7 +29,7 @@ public class XRFSlave {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException,InterruptedException, BiffException  {
+    public static void main(String[] args) throws IOException,InterruptedException  {
               
         
         //Path faxFolder = Paths.get("//javari/IQC_F2/Jose_Alberto");

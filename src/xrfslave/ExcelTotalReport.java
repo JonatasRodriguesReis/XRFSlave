@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package xrfslave;
+
+import java.io.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,6 +29,23 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.*;
+import java.util.Iterator;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.apache.poi.hssf.converter.ExcelToHtmlConverter;
+import org.apache.poi.hssf.converter.ExcelToHtmlUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.jsoup.Jsoup;
+import org.w3c.dom.Document;
+
 
 /**
  *
@@ -198,10 +217,9 @@ public class ExcelTotalReport {
                                 }catch(SQLException e){
                                     System.out.println(e.getMessage());
                                 }
-                                String path_source = path.substring(0,path.indexOf("TotalReport.xls")) + nome_Item + "\\Report\\" + sb.sample_no + ".xls";
-                                File source = new File(path_source); 
-                                File dest = new File("C:\\xampp\\htdocs\\ReportsFiles\\" + sb.data_teste + "_" + sb.sample_no +"_"+ sb.nome +"_" + nome_Item +".xls");
-                                copiarReport(source, dest);
+                                String source = path.substring(0,path.indexOf("TotalReport.xls")) + nome_Item + "\\Report\\" + sb.sample_no + ".xls";
+                                //File source = new File(path_source); 
+                                exportToPDF(source,"C:\\xampp\\htdocs\\ReportsFiles\\" + sb.data_teste + "_" + sb.sample_no +"_"+ sb.nome +"_" + nome_Item +".html");
                             }
 
                             try{
@@ -248,15 +266,111 @@ public class ExcelTotalReport {
     }     
    }
    
-   private static void copiarReport(File source, File dest){
-
+   private static void exportToPDF(String source, String dest){
+       HSSFWorkbook excelDoc;
         try {
-            Files.copy(source.toPath(), dest.toPath());
+            excelDoc = ExcelToHtmlUtils.loadXls(new File(source));
+            ExcelToHtmlConverter converter = new ExcelToHtmlConverter(
+                DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+            );
+
+            converter.processWorkbook(excelDoc);
+
+            Document htmlDoc = converter.getDocument();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            DOMSource domSource = new DOMSource(htmlDoc);
+            StreamResult streamResult = new StreamResult(out);
+            TransformerFactory transfFactory = TransformerFactory.newInstance();
+            Transformer serializer = transfFactory.newTransformer();
+            
+            serializer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "html");
+            serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+            serializer.setOutputProperty(OutputKeys.METHOD, "html");
+            serializer.transform(domSource, streamResult);
+
+            out.close();
+            
+            String result = new String(out.toByteArray());
+            
+            FileWriter arq = new FileWriter(dest);
+            PrintWriter gravarArq = new PrintWriter(arq);
+
+            gravarArq.printf(result);
+            //System.out.println(result);
+            
+            //OutputStream os = new FileOutputStream("C:\\xampp\\htdocs\\ReportsFiles\\hello.pdf");
+            //InputStream in = new FileInputStream("C:\\xampp\\htdocs\\ReportsFiles\\teste.html");
+            //GeraPDF.convert("", os);        	
+            //os.close();
+            
+            //GeraPDF.gerar(XHTMLConvert.convertToXHTML(result.replace("&nbsp;"," ")));
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-
+            Logger.getLogger(Teste.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParserConfigurationException ex) {
+            Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerException ex) {
+            Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+                 
     }
-
+   
     
+   /*private static void exportToPDF(File source, String dest){
+        FileInputStream input_document;
+        try {
+            input_document = new FileInputStream(source);
+            // Read workbook into HSSFWorkbook
+            HSSFWorkbook my_xls_workbook = new HSSFWorkbook(input_document); 
+            // Read worksheet into HSSFSheet
+            HSSFSheet my_worksheet = my_xls_workbook.getSheetAt(0); 
+            // To iterate over the rows
+            Iterator<Row> rowIterator = my_worksheet.iterator();
+            //We will create output PDF document objects at this point
+            PdfDocument pdf = new PdfDocument(new PdfWriter(dest));
+            Document iText_xls_2_pdf = new Document(pdf);
+            
+            //we have two columns in the Excel sheet, so we create a PDF table with two columns
+            //Note: There are ways to make this dynamic in nature, if you want to.
+            PdfPTable my_table = new PdfPTable(2);
+            //We will use the object below to dynamically add new data to the table
+            PdfPCell table_cell;
+            //Loop through rows.
+            while(rowIterator.hasNext()) {
+                Row row = rowIterator.next(); 
+                Iterator<Cell> cellIterator = row.cellIterator();
+                while(cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next(); //Fetch CELL
+                    switch(cell.getCellType()) { //Identify CELL type
+                    //you need to add more code here based on
+                    //your requirement / transformations
+                        case Cell.CELL_TYPE_STRING:
+                            //Push the data from Excel to PDF Cell
+                            table_cell=new PdfPCell(new Phrase(cell.getStringCellValue()));
+                            //feel free to move the code below to suit to your needs
+                            my_table.addCell(table_cell);
+                            break;
+                    }
+                    //next line
+                }
+            }
+            //Finally add the table to PDF document
+            iText_xls_2_pdf.add(my_table);                       
+            iText_xls_2_pdf.close();                
+            //we created our pdf file..
+            input_document.close(); //close xls
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex) {
+            Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (DocumentException ex) {
+            Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+   } 
+    
+   File dest = new File("C:\\xampp\\htdocs\\ReportsFiles\\" + sb.data_teste + "_" + sb.sample_no +"_"+ sb.nome +"_" + nome_Item +".xls");
+                                copiarReport(source, dest); */
+     
 }
