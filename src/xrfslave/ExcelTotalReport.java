@@ -31,6 +31,7 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.*;
 import java.util.Iterator;
+import java.util.UnknownFormatConversionException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -43,7 +44,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.poi.hssf.converter.ExcelToHtmlConverter;
 import org.apache.poi.hssf.converter.ExcelToHtmlUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 
 
@@ -191,7 +191,7 @@ public class ExcelTotalReport {
                     try {
                         st = conn.createStatement();
                         ResultSet rs = st.executeQuery(consultaItem);
-                        if(rs.next() && rs.getString("situacao").equals("NÃO_REALIZADO")){
+                        if(rs.next() && rs.getString("situacao").equals("REALIZADO")){
                             for (SubItem sb : lista) {
                                 try{
                                     // create the java mysql update preparedstatement
@@ -217,9 +217,14 @@ public class ExcelTotalReport {
                                 }catch(SQLException e){
                                     System.out.println(e.getMessage());
                                 }
-                                String source = path.substring(0,path.indexOf("TotalReport.xls")) + nome_Item + "\\Report\\" + sb.sample_no + ".xls";
+                                /*String source = path.substring(0,path.indexOf("TotalReport.xls")) + nome_Item + "\\Report\\" + sb.sample_no + ".xls";
                                 //File source = new File(path_source); 
                                 exportToPDF(source,"C:\\xampp\\htdocs\\ReportsFiles\\" + sb.data_teste + "_" + sb.sample_no +"_"+ sb.nome +"_" + nome_Item +".html");
+                                */
+                                String path_source = path.substring(0,path.indexOf("TotalReport.xls")) + nome_Item + "\\Report\\" + sb.sample_no + ".xls";
+                                File source = new File(path_source); 
+                                File dest = new File("C:\\xampp\\htdocs\\ReportsFiles\\" + sb.data_teste + "_" + sb.sample_no +"_"+ sb.nome +"_" + nome_Item +".xls");
+                                copiarReport(source, dest);
                             }
 
                             try{
@@ -296,25 +301,35 @@ public class ExcelTotalReport {
             FileWriter arq = new FileWriter(dest);
             PrintWriter gravarArq = new PrintWriter(arq);
 
-            gravarArq.printf(result);
+            gravarArq.print(result);
             //System.out.println(result);
             
             //OutputStream os = new FileOutputStream("C:\\xampp\\htdocs\\ReportsFiles\\hello.pdf");
             //InputStream in = new FileInputStream("C:\\xampp\\htdocs\\ReportsFiles\\teste.html");
-            //GeraPDF.convert("", os);        	
+            //GeraPDF.convert("", os);          
             //os.close();
             
             //GeraPDF.gerar(XHTMLConvert.convertToXHTML(result.replace("&nbsp;"," ")));
         } catch (IOException ex) {
-            Logger.getLogger(Teste.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TransformerException ex) {
             Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnknownFormatConversionException ex) {
+            Logger.getLogger(ExcelTotalReport.class.getName()).log(Level.SEVERE, null, ex);
         } 
+        
                  
     }
    
+    private static void copiarReport(File source, File dest){
+         try {
+            Files.copy(source.toPath(), dest.toPath());
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
     
    /*private static void exportToPDF(File source, String dest){
         FileInputStream input_document;
