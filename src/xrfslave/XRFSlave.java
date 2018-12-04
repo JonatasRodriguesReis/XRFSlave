@@ -33,8 +33,8 @@ public class XRFSlave {
               
         
         //Path faxFolder = Paths.get("//javari/IQC_F2/Jose_Alberto");
-        String base = "C:\\Users\\jonat\\Documents\\NetBeansProjects\\XRFSlave\\fax";
-	Path faxFolder = Paths.get("C://Users//jonat//Documents//NetBeansProjects//XRFSlave//fax");
+        String base = "C:\\Users\\francisco.pereira\\Documents\\XRFSlave\\fax";
+	Path faxFolder = Paths.get("C://Users//francisco.pereira//Documents//XRFSlave//fax");
 	WatchService watchService = FileSystems.getDefault().newWatchService();
 	WatchEvent.Kind<?>[] events = { StandardWatchEventKinds.ENTRY_CREATE,
         StandardWatchEventKinds.ENTRY_DELETE,
@@ -79,6 +79,40 @@ public class XRFSlave {
                                 System.out.println(e.getMessage());
                             }
                             
+                        }else{
+                            if(fileName.contains("month.xls")){
+                            String month = fileName.substring(0,fileName.indexOf("_"));
+                            System.out.println("Novo mês criado:" + fileName);
+                            System.out.println("Mês " + month);
+                            /*try {
+                                File file = new File( base + "\\" + fileName);
+                                ExcelTotalReport.openTotalReport(base + "\\" + fileName);
+                                /*if(file.canRead()) {
+                                    Workbook workbook = Workbook.getWorkbook(file);
+                                    Sheet sheet = workbook.getSheet(0);
+                                    int linhas = sheet.getRows();
+                                    System.out.println("Linhas : " + linhas);
+                                    workbook.close();
+                                } else {
+                                    FileOutputStream fileOut = new FileOutputStream(file);
+                                    Workbook workbook = Workbook.getWorkbook(file);
+                                    Sheet sheet = workbook.getSheet(0);
+                                    int linhas = sheet.getRows();
+                                    System.out.println("Linhas : " + linhas);
+                                    workbook.close();
+                                    fileOut.close();
+                                }
+
+                                
+                            } catch (FileNotFoundException e) {
+                                System.out.println(e.getMessage());
+                            }
+                            catch (IOException e) {
+                                System.out.println(e.getMessage());
+                            }*/
+                            
+                        }
+
                         }
                     }			
 		}
