@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -56,11 +57,20 @@ public class ExcelMonth {
         FileInputStream arquivo;
         try {
             arquivo = new FileInputStream(new File(path));
-            XSSFWorkbook workbook = new XSSFWorkbook(arquivo);
+            Iterator<Row> rowIterator;
+            try {
+                HSSFWorkbook workbook = new HSSFWorkbook(arquivo);
+                HSSFSheet sheet = workbook.getSheetAt(0);
+                rowIterator = sheet.iterator();
+            } catch (OfficeXmlFileException e) {
+                arquivo.close();
+                XSSFWorkbook workbook = new XSSFWorkbook(arquivo);
   
-            XSSFSheet sheet = workbook.getSheetAt(0);
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                rowIterator = sheet.iterator();
+            }
+            
   
-            Iterator<Row> rowIterator = sheet.iterator();
             
             int index = 0;
             while (rowIterator.hasNext()) {
