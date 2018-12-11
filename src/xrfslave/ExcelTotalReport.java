@@ -184,14 +184,14 @@ public class ExcelTotalReport {
                     fim_item = false;
                     //i = 0;
                     index = 0;
-                    //System.out.println("Fim Item : " + nome_Item);
+                    
                     //System.out.println("Tamanho: " + lista.size());
                     String consultaItem = "select * from item where nome = '"+ nome_Item +"' and data_teste = '" + data_teste_item + "'";
                     Statement st;
                     try {
                         st = conn.createStatement();
                         ResultSet rs = st.executeQuery(consultaItem);
-                        if(rs.next() && rs.getString("situacao").equals("REALIZADO")){
+                        if(rs.next() && rs.getString("situacao").equals("NÃO_REALIZADO")){
                             for (SubItem sb : lista) {
                                 try{
                                     // create the java mysql update preparedstatement
@@ -214,6 +214,7 @@ public class ExcelTotalReport {
 
                                     // execute the java preparedstatement
                                     preparedStmt.execute();
+                                    
                                 }catch(SQLException e){
                                     System.out.println(e.getMessage());
                                 }
