@@ -35,8 +35,8 @@ public class XRFSlave {
               
         
         //Path faxFolder = Paths.get("//javari/IQC_F2/Jose_Alberto");
-        String base = "C:\\Users\\francisco.pereira\\Documents\\XRFSlave\\fax";
-	Path faxFolder = Paths.get("C://Users//francisco.pereira//Documents//XRFSlave//fax");
+        String base = "C:\\Users\\jonat\\Documents\\NetBeansProjects\\XRFSlave\\fax";
+	Path faxFolder = Paths.get("C://Users//jonat//Documents//NetBeansProjects//XRFSlave//fax");
 	WatchService watchService = FileSystems.getDefault().newWatchService();
 	WatchEvent.Kind<?>[] events = { StandardWatchEventKinds.ENTRY_CREATE,
         StandardWatchEventKinds.ENTRY_DELETE,
@@ -56,6 +56,7 @@ public class XRFSlave {
                             System.out.println("File Created:" + fileName);
                             try {
                                 File file = new File( base + "\\" + fileName);
+                                Thread.sleep(5000);
                                 ExcelTotalReport.openTotalReport(base + "\\" + fileName);
                                 
                             } catch (FileNotFoundException e) {
@@ -66,9 +67,10 @@ public class XRFSlave {
                             }
                             
                         }else{
-                            if(fileName.contains("MONTH.xls") && !fileName.contains("~$")){
+                            if(fileName.contains("MONTH") && !fileName.contains("~$")){
                                 String month = fileName.substring(0,fileName.indexOf("_"));
                                 System.out.println("Novo mês criado:" + fileName);
+                                Thread.sleep(5000);
                                 ExcelMonth.openMonth(base + "\\" + fileName, month);
                                 
                             }
