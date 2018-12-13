@@ -63,7 +63,7 @@ public class ExcelMonth {
                 HSSFSheet sheet = workbook.getSheetAt(0);
                 rowIterator = sheet.iterator();
             } catch (OfficeXmlFileException e) {
-                arquivo.close();
+                //arquivo.close();
                 XSSFWorkbook workbook = new XSSFWorkbook(arquivo);
   
                 XSSFSheet sheet = workbook.getSheetAt(0);
