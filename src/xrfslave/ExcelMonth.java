@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,73 +58,76 @@ public class ExcelMonth {
         FileInputStream arquivo;
         try {
             arquivo = new FileInputStream(new File(path));
-            Iterator<Row> rowIterator;
-            try {
-                HSSFWorkbook workbook = new HSSFWorkbook(arquivo);
-                HSSFSheet sheet = workbook.getSheetAt(0);
-                rowIterator = sheet.iterator();
-            } catch (OfficeXmlFileException e) {
-                //arquivo.close();
+
+            Iterator<Row> rowIterator = null;
+            if(path.contains("xlsx")){
+                
                 XSSFWorkbook workbook = new XSSFWorkbook(arquivo);
   
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 rowIterator = sheet.iterator();
-            }
-            
-  
-            
-            int index = 0;
-            while (rowIterator.hasNext()) {
-                String data = "";
-                String item = "";
-                Row row = rowIterator.next();
-                Iterator<Cell> cellIterator = row.cellIterator();
-                index++;      
-                if(index > 2){
-                    
-                    while (cellIterator.hasNext()) {
-                        Cell cell = cellIterator.next();
-                        
-                        switch (cell.getColumnIndex()) {
-                          case 9:
-                              cell.setCellType(CellType.STRING);
-                              item = cell.getStringCellValue();
-                              //System.out.print(" " + cell.getStringCellValue());
-                              //System.out.println(cell.getStringCellValue());
-                              break;
-                          case 7:
-                             String cellValue = "";
-                             if(DateUtil.isCellDateFormatted(cell)){
-                              SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                              cellValue =  sdf.format(cell.getDateCellValue());                                            
-                             }
-                             //System.out.print("DATA" + cellValue);
-                             data = cellValue;
-                             break;
-                          
-                        }
-                    }
-                    if(!data.equals("") && !item.equals("")){
-                        try {
-                            String query = "insert into item(nome,data_teste,situacao,statusrohs) values(?,?,?,?)";
-                            PreparedStatement preparedStmt = conn.prepareStatement(query);
-                        
-                            preparedStmt.setString(1, item);
-                            preparedStmt.setString(2, data);
-                            preparedStmt.setString(3, "NÃO_REALIZADO");
-                            preparedStmt.setInt(4, lastId);
-                            preparedStmt.execute();
-                        } catch (SQLException ex) {
-                            Logger.getLogger(ExcelMonth.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        
-                    }
-                }      
-                          
-            }
-        
-                    
                 
+            }else if(path.contains("xls")){
+                HSSFWorkbook workbook = new HSSFWorkbook(arquivo);
+                HSSFSheet sheet = workbook.getSheetAt(0);
+                rowIterator = sheet.iterator();
+            }
+            System.out.println(path.substring(path.indexOf(".") + 1));
+            
+            
+            if(rowIterator != null){
+                int index = 0;
+                while (rowIterator.hasNext()) {
+                    String data = "";
+                    String item = "";
+                    Row row = rowIterator.next();
+                    Iterator<Cell> cellIterator = row.cellIterator();
+                    index++;      
+                    if(index > 2){
+
+                        while (cellIterator.hasNext()) {
+                            Cell cell = cellIterator.next();
+
+                            switch (cell.getColumnIndex()) {
+                              case 9:
+                                  cell.setCellType(CellType.STRING);
+                                  item = cell.getStringCellValue();
+                                  System.out.print(" " + cell.getStringCellValue());
+                                  System.out.println(cell.getStringCellValue());
+                                  break;
+                              case 7:
+                                 String cellValue = "";
+                                 if(DateUtil.isCellDateFormatted(cell)){
+                                  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                  cellValue =  sdf.format(cell.getDateCellValue());                                            
+                                 }
+                                 System.out.print("DATA" + cellValue);
+                                 data = cellValue;
+                                 break;
+
+                            }
+                        }
+                        if(!data.equals("") && !item.equals("")){
+                            try {
+                                String query = "insert into item(nome,data_teste,situacao,statusrohs) values(?,?,?,?)";
+                                PreparedStatement preparedStmt = conn.prepareStatement(query);
+
+                                preparedStmt.setString(1, item);
+                                preparedStmt.setString(2, data);
+                                preparedStmt.setString(3, "NÃO_REALIZADO");
+                                preparedStmt.setInt(4, lastId);
+                                preparedStmt.execute();
+                            } catch (SQLException ex) {
+                                Logger.getLogger(ExcelMonth.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            
+                            
+
+                        }
+                    }      
+
+                }
+            }  
             
         arquivo.close();
     } catch (FileNotFoundException ex) {

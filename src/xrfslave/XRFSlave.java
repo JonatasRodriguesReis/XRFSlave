@@ -56,6 +56,7 @@ public class XRFSlave {
                             System.out.println("File Created:" + fileName);
                             try {
                                 File file = new File( base + "\\" + fileName);
+                                Thread.sleep(5000);
                                 ExcelTotalReport.openTotalReport(base + "\\" + fileName);
                                 
                             } catch (FileNotFoundException e) {
@@ -66,7 +67,7 @@ public class XRFSlave {
                             }
                             
                         }else{
-                            if(fileName.contains("MONTH.xls") && !fileName.contains("~$")){
+                            if(fileName.contains("MONTH") && !fileName.contains("~$")){
                                 String month = fileName.substring(0,fileName.indexOf("_"));
                                 System.out.println("Novo mês criado:" + fileName);
                                 ExcelMonth.openMonth(base + "\\" + fileName, month);
