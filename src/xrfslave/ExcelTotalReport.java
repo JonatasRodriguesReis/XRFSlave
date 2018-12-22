@@ -94,6 +94,12 @@ public class ExcelTotalReport {
                 String hg_judge = "";
                 String br_judge = "";
                 String cr_judge = "";
+                String cd_conc = "";
+                String pb_conc = "";
+                String hg_conc = "";
+                String br_conc = "";
+                String cr_conc = "";
+                String recipe_name = "";
 
                 ArrayList<SubItem> lista = new ArrayList<SubItem>();
 
@@ -124,6 +130,11 @@ public class ExcelTotalReport {
                                   cell.setCellType(CellType.STRING);
                                   System.out.print(" " + cell.getStringCellValue());
                                   sample_no = cell.getStringCellValue();
+                                  break;
+                              case 3:
+                                  cell.setCellType(CellType.STRING);
+                                  System.out.print(" " + cell.getStringCellValue());
+                                  recipe_name = cell.getStringCellValue();
                                   break;
                               case 7:
                                  String cellValue = "";
@@ -159,25 +170,50 @@ public class ExcelTotalReport {
                                     judge_item = judge;
                                   }
                                   break;
+                              case 19:
+                                  cell.setCellType(CellType.STRING);
+                                  System.out.print(" " + cell.getStringCellValue());
+                                  cd_conc = cell.getStringCellValue();
+                                  break;
                               case 20:
                                   cell.setCellType(CellType.STRING);
                                   System.out.print(" " + cell.getStringCellValue());
                                   cd_judge = cell.getStringCellValue();
+                                  break;
+                              case 27:
+                                  cell.setCellType(CellType.STRING);
+                                  System.out.print(" " + cell.getStringCellValue());
+                                  pb_conc = cell.getStringCellValue();
                                   break;
                               case 28:
                                   cell.setCellType(CellType.STRING);
                                   System.out.print(" " + cell.getStringCellValue());
                                   pb_judge = cell.getStringCellValue();
                                   break;
+                              case 35:
+                                  cell.setCellType(CellType.STRING);
+                                  System.out.print(" " + cell.getStringCellValue());
+                                  hg_conc = cell.getStringCellValue();
+                                  break;
                               case 36:
                                   cell.setCellType(CellType.STRING);
                                   System.out.print(" " + cell.getStringCellValue());
                                   hg_judge = cell.getStringCellValue();
                                   break;
+                              case 43:
+                                  cell.setCellType(CellType.STRING);
+                                  System.out.print(" " + cell.getStringCellValue());
+                                  br_conc = cell.getStringCellValue();
+                                  break;
                               case 44:
                                   cell.setCellType(CellType.STRING);
                                   System.out.print(" " + cell.getStringCellValue());
                                   br_judge = cell.getStringCellValue();
+                                  break;
+                              case 51:
+                                  cell.setCellType(CellType.STRING);
+                                  System.out.print(" " + cell.getStringCellValue());
+                                  cr_conc = cell.getStringCellValue();
                                   break;
                               case 52:
                                   cell.setCellType(CellType.STRING);
@@ -187,7 +223,7 @@ public class ExcelTotalReport {
                             }
                         }
                         if(!fim_item){
-                            SubItem sb = new SubItem(sample_no,data_teste, nome, part_number, operator, judge, cd_judge, pb_judge, hg_judge, br_judge, cr_judge);
+                            SubItem sb = new SubItem(sample_no,data_teste, nome, part_number, operator, judge, cd_judge, pb_judge, hg_judge, br_judge, cr_judge,Integer.parseInt(cd_conc),Integer.parseInt(pb_conc),Integer.parseInt(hg_conc),Integer.parseInt(br_conc),Integer.parseInt(cr_conc),recipe_name);
                             lista.add(sb);
                         }
 
@@ -207,8 +243,8 @@ public class ExcelTotalReport {
                                 for (SubItem sb : lista) {
                                     try{
                                         // create the java mysql update preparedstatement
-                                        String query = "insert into subitem(sample_no,operator,judge,cd_judge,pb_judge,hg_judge,br_judge,cr_judge,item,nome,data_teste) "
-                                                + "values(?,?,?,?,?,?,?,?,(select id from item where data_teste = ? and nome = ?),?,?) ";
+                                        String query = "insert into subitem(sample_no,operator,judge,cd_judge,pb_judge,hg_judge,br_judge,cr_judge,cd_conc,pb_conc,hg_conc,br_conc,cr_conc,recipe_name,item,nome,data_teste) "
+                                                + "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,(select id from item where data_teste = ? and nome = ?),?,?) ";
 
                                         PreparedStatement preparedStmt = conn.prepareStatement(query);
                                         preparedStmt.setString(1, sb.sample_no);
@@ -219,10 +255,16 @@ public class ExcelTotalReport {
                                         preparedStmt.setString(6, sb.hg_judge);
                                         preparedStmt.setString(7, sb.br_judge);
                                         preparedStmt.setString(8, sb.cr_judge);
-                                        preparedStmt.setString(9, sb.data_teste);
-                                        preparedStmt.setString(10, nome_Item);
-                                        preparedStmt.setString(11, sb.nome);
-                                        preparedStmt.setString(12, sb.data_teste);
+                                        preparedStmt.setInt(9, sb.cd_conc);
+                                        preparedStmt.setInt(10, sb.pb_conc);
+                                        preparedStmt.setInt(11, sb.hg_conc);
+                                        preparedStmt.setInt(12, sb.br_conc);
+                                        preparedStmt.setInt(13, sb.cr_conc);
+                                        preparedStmt.setString(14, sb.recipe_name);
+                                        preparedStmt.setString(15, sb.data_teste);
+                                        preparedStmt.setString(16, nome_Item);
+                                        preparedStmt.setString(17, sb.nome);
+                                        preparedStmt.setString(18, sb.data_teste);
 
                                         // execute the java preparedstatement
                                         preparedStmt.execute();

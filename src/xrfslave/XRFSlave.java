@@ -51,7 +51,7 @@ public class XRFSlave {
                 Thread.sleep( 50 );
 		if (StandardWatchEventKinds.ENTRY_MODIFY.equals(event.kind())) {
                     String fileName = event.context().toString();
-                    if(!(fileName.substring(fileName.length()-3).equals("TMP") || fileName.substring(fileName.length()-3).equals("tmp"))){
+                    if(!(fileName.contains("TMP") || fileName.contains("tmp"))){
                         if(fileName.contains("TotalReport")){
                             System.out.println("File Created:" + fileName);
                             try {

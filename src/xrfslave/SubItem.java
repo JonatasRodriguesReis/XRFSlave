@@ -21,8 +21,14 @@ public class SubItem {
     public String hg_judge;
     public String br_judge;
     public String cr_judge;
+    public int cd_conc;
+    public int pb_conc;
+    public int hg_conc;
+    public int br_conc;
+    public int cr_conc;
+    public String recipe_name;
 
-    public SubItem(String sample_no,String data_teste, String nome, String part_number, String operator, String judge, String cd_judge, String pb_judge, String hg_judge, String br_judge, String cr_judge) {
+    public SubItem(String sample_no,String data_teste, String nome, String part_number, String operator, String judge, String cd_judge, String pb_judge, String hg_judge, String br_judge, String cr_judge,int cd_conc, int pb_conc, int hg_conc, int br_conc, int cr_conc,String recipe_name ) {
         this.sample_no = sample_no;
         this.data_teste = data_teste;
         this.nome = nome;
@@ -34,6 +40,12 @@ public class SubItem {
         this.hg_judge = hg_judge;
         this.br_judge = br_judge;
         this.cr_judge = cr_judge;
+        this.cd_conc = cd_conc;
+        this.pb_conc = pb_conc;
+        this.hg_conc = hg_conc;
+        this.br_conc = br_conc;
+        this.cr_conc = cr_conc;
+        this.recipe_name = recipe_name;
     }
     
     
