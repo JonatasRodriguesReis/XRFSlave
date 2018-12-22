@@ -58,18 +58,21 @@ public class ExcelMonth {
         FileInputStream arquivo;
         try {
             arquivo = new FileInputStream(new File(path));
+
             Iterator<Row> rowIterator = null;
-            if(path.substring(path.indexOf(".") + 1).equals("xlsx")){
+            if(path.contains("xlsx")){
+                
                 XSSFWorkbook workbook = new XSSFWorkbook(arquivo);
   
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 rowIterator = sheet.iterator();
-            }else if(path.substring(path.indexOf(".") + 1).equals("xls")){
+                
+            }else if(path.contains("xls")){
                 HSSFWorkbook workbook = new HSSFWorkbook(arquivo);
                 HSSFSheet sheet = workbook.getSheetAt(0);
                 rowIterator = sheet.iterator();
             }
-            
+            System.out.println(path.substring(path.indexOf(".") + 1));
             
             
             if(rowIterator != null){
@@ -89,8 +92,8 @@ public class ExcelMonth {
                               case 9:
                                   cell.setCellType(CellType.STRING);
                                   item = cell.getStringCellValue();
-                                  //System.out.print(" " + cell.getStringCellValue());
-                                  //System.out.println(cell.getStringCellValue());
+                                  System.out.print(" " + cell.getStringCellValue());
+                                  System.out.println(cell.getStringCellValue());
                                   break;
                               case 7:
                                  String cellValue = "";
@@ -98,7 +101,7 @@ public class ExcelMonth {
                                   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                                   cellValue =  sdf.format(cell.getDateCellValue());                                            
                                  }
-                                 //System.out.print("DATA" + cellValue);
+                                 System.out.print("DATA" + cellValue);
                                  data = cellValue;
                                  break;
 
