@@ -239,7 +239,7 @@ public class ExcelTotalReport {
                         try {
                             st = conn.createStatement();
                             ResultSet rs = st.executeQuery(consultaItem);
-                            if(rs.next() && rs.getString("situacao").equals("NÃO_REALIZADO")){
+                            while(rs.next() && rs.getString("situacao").equals("NÃO_REALIZADO")){
                                 for (SubItem sb : lista) {
                                     try{
                                         // create the java mysql update preparedstatement
