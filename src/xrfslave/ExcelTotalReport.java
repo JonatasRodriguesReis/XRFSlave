@@ -60,6 +60,7 @@ public class ExcelTotalReport {
         conn = DBConnection.getConexaoMySQL();
         FileInputStream arquivo;
         try {
+            System.out.println(path);
             arquivo = new FileInputStream(new File(path));
   
             Iterator<Row> rowIterator = null;

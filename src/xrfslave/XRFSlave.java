@@ -34,9 +34,9 @@ public class XRFSlave {
     public static void main(String[] args) throws IOException,InterruptedException  {
               
         
-        //Path faxFolder = Paths.get("//javari/IQC_F2/Jose_Alberto");
-        String base = "C:\\Users\\francisco.pereira\\Documents\\XRFSlave\\fax";
-	Path faxFolder = Paths.get("C://Users//francisco.pereira//Documents//XRFSlave//fax");
+        //Path faxFolder = Paths.get("//javari/IQC_F2/Data");
+        String base = "//javari//IQC_F2//Data";
+	Path faxFolder = Paths.get("//javari//IQC_F2//Data");
 	WatchService watchService = FileSystems.getDefault().newWatchService();
 	WatchEvent.Kind<?>[] events = { StandardWatchEventKinds.ENTRY_CREATE,
         StandardWatchEventKinds.ENTRY_DELETE,
@@ -55,7 +55,7 @@ public class XRFSlave {
                         if(fileName.contains("TotalReport")){
                             System.out.println("File Created:" + fileName);
                             try {
-                                File file = new File( base + "\\" + fileName);
+                                //File file = new File( base + "\\" + fileName);
                                 Thread.sleep(5000);
                                 ExcelTotalReport.openTotalReport(base + "\\" + fileName);
                                 
