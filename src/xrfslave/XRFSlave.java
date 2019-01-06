@@ -33,6 +33,7 @@ import java.awt.Menu;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.Toolkit;
+import java.net.URL;
 
 /**
  *
@@ -53,8 +54,7 @@ public class XRFSlave {
             return;
         }
         final PopupMenu popup = new PopupMenu();
-        final TrayIcon trayIcon =
-                new TrayIcon(Toolkit.getDefaultToolkit().getImage(".\\icone.png"));
+        
         final SystemTray tray = SystemTray.getSystemTray();
        
         // Create a pop-up menu components
@@ -80,8 +80,10 @@ public class XRFSlave {
         displayMenu.add(infoItem);
         displayMenu.add(noneItem);
         popup.add(exitItem);
-       
-        trayIcon.setPopupMenu(popup);
+        final TrayIcon trayIcon =
+                new TrayIcon(Toolkit.getDefaultToolkit().getImage("C:\\Users\\jonat\\Documents\\NetBeansProjects\\XRFSlave\\src\\xrfslave\\icone.png"),"XRF Slave",popup);
+        trayIcon.setImageAutoSize(true);
+        
        
         try {
             tray.add(trayIcon);
