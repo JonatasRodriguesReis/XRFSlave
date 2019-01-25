@@ -38,7 +38,7 @@ public class ExcelMonth {
     public static void openMonth(String path,String month) throws IOException{
         Connection conn = null;
         int lastId = -1;
-        conn = DBConnection.getConexaoMySQL();
+        conn = DBConnection.getConexaoMySQL(XRFSlave.getProp().getProperty("prop.server.ip"));
         try{
 
             System.out.println(path);

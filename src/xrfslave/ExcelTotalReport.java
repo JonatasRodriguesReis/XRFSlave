@@ -57,7 +57,7 @@ public class ExcelTotalReport {
     
     public static void openTotalReport(String path) throws IOException{
         Connection conn = null;
-        conn = DBConnection.getConexaoMySQL();
+        conn = DBConnection.getConexaoMySQL(XRFSlave.getProp().getProperty("prop.server.ip"));
         FileInputStream arquivo;
         try {
             System.out.println(path);
@@ -235,12 +235,13 @@ public class ExcelTotalReport {
                         index = 0;
 
                         //System.out.println("Tamanho: " + lista.size());
-                        String consultaItem = "select * from item where nome = '"+ nome_Item +"' and data_teste = '" + data_teste_item + "'";
+                        String consultaItem = "select * from item where REPLACE(nome,' ', '') = REPLACE('"+ nome_Item +"',' ', '') and data_teste = '" + data_teste_item + "'";
                         Statement st;
                         try {
                             st = conn.createStatement();
                             ResultSet rs = st.executeQuery(consultaItem);
                             while(rs.next() && rs.getString("situacao").equals("NÃO_REALIZADO")){
+                                nome_Item = rs.getString("nome");
                                 for (SubItem sb : lista) {
                                     try{
                                         // create the java mysql update preparedstatement
@@ -279,7 +280,7 @@ public class ExcelTotalReport {
                                     */
                                     String path_source = path.substring(0,path.indexOf("TotalReport.xls")) + nome_Item + "\\Report\\" + sb.sample_no + ".xls";
                                     File source = new File(path_source); 
-                                    File dest = new File("C:\\xampp\\htdocs\\ReportsFiles\\" + sb.data_teste + "_" + sb.sample_no +"_"+ sb.nome +"_" + nome_Item +".xls");
+                                    File dest = new File("\\\\javari\\IQC_F2\\Data\\ReportsFiles\\" + sb.data_teste + "_" + sb.sample_no +"_"+ sb.nome +"_" + nome_Item +".xls");
                                     copiarReport(source, dest);
                                 }
 

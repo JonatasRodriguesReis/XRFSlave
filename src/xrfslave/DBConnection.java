@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * @author jonat
  */
 public class DBConnection {
-    public static Connection getConexaoMySQL() {
+    public static Connection getConexaoMySQL(String ip) {
  
         Connection connection = null;       
         try {
@@ -29,7 +29,7 @@ public class DBConnection {
             String url = "jdbc:mysql://" + serverName + "/" + mydatabase;
             String username = "root";        //nome de um usuário de seu BD      
             String password = "";      //sua senha de acesso
-            connection = DriverManager.getConnection("jdbc:mysql://localhost/lg_teste?useTimezone=true&serverTimezone=UTC", "root", "");
+            connection = DriverManager.getConnection("jdbc:mysql://" + ip +":3306/lg?useTimezone=true&serverTimezone=UTC", "root", "alberto14");
             System.out.println("Conectou!");
             return connection;
         } catch (ClassNotFoundException e) {  //Driver não encontrado

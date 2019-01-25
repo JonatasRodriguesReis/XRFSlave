@@ -33,6 +33,11 @@ import java.awt.Menu;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.Toolkit;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Properties;
 
 /**
  *
@@ -53,8 +58,7 @@ public class XRFSlave {
             return;
         }
         final PopupMenu popup = new PopupMenu();
-        final TrayIcon trayIcon =
-                new TrayIcon(Toolkit.getDefaultToolkit().getImage(".\\icone.png"));
+        
         final SystemTray tray = SystemTray.getSystemTray();
        
         // Create a pop-up menu components
@@ -67,6 +71,12 @@ public class XRFSlave {
         MenuItem infoItem = new MenuItem("Info");
         MenuItem noneItem = new MenuItem("None");
         MenuItem exitItem = new MenuItem("Exit");
+        exitItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit( 0 );
+            }
+        });
        
         //Add components to pop-up menu
         popup.add(aboutItem);
@@ -80,8 +90,10 @@ public class XRFSlave {
         displayMenu.add(infoItem);
         displayMenu.add(noneItem);
         popup.add(exitItem);
-       
-        trayIcon.setPopupMenu(popup);
+        final TrayIcon trayIcon =
+                new TrayIcon(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Public\\Pictures\\icone.png"),"XRF Slave",popup);
+        trayIcon.setImageAutoSize(true);
+        
        
         try {
             tray.add(trayIcon);
@@ -89,13 +101,24 @@ public class XRFSlave {
             System.out.println("TrayIcon could not be added.");
         }
     }
+    
+    public static Properties getProp() throws FileNotFoundException, IOException{
+        Properties props = new Properties();
+        FileInputStream file = new FileInputStream(new File("C:\\Users\\francisco.pereira\\Documents\\XRFSlave\\src\\xrfslave\\dados.properties"));
+        props.load(file);
+        return props;
+    } 
     public static void main(String[] args) throws IOException,InterruptedException  {
-        
+        Connection conn = null;
+        int lastId = -1;
+        conn = DBConnection.getConexaoMySQL(XRFSlave.getProp().getProperty("prop.server.ip"));
         //Path faxFolder = Paths.get("//javari/IQC_F2/Jose_Alberto");
+        System.out.println(XRFSlave.getProp().getProperty("prop.server.ip"));
+        
         XRFSlave xrf = new XRFSlave();
         xrf.testTray();
-		String base = "//javari//IQC_F2//Data";
-		Path faxFolder = Paths.get("//javari//IQC_F2//Data");
+		String base = "\\\\javari\\IQC_F2\\Data\\Teste";
+		Path faxFolder = Paths.get("\\\\javari\\IQC_F2\\Data\\Teste");
 		WatchService watchService = FileSystems.getDefault().newWatchService();
 		WatchEvent.Kind<?>[] events = { StandardWatchEventKinds.ENTRY_CREATE,
         StandardWatchEventKinds.ENTRY_DELETE,
@@ -127,7 +150,7 @@ public class XRFSlave {
                             
                         }else{
                             if(fileName.contains("MONTH") && !fileName.contains("~$")){
-                                String month = fileName.substring(0,fileName.indexOf("_"));
+                                String month = fileName.substring(fileName.indexOf("_") - 6,fileName.indexOf("_"));
                                 System.out.println("Novo mês criado:" + fileName);
                                 ExcelMonth.openMonth(base + "\\" + fileName, month);
                                 
